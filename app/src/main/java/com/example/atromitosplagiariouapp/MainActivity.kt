@@ -29,6 +29,16 @@ fun AtromitosPlagiariouApp() {
 
 @Preview(showBackground = true)
 @Composable
-fun AtromitosPlagiariouAppPreview() {
-    AtromitosPlagiariouApp()
+fun AtromitosPlagiariouAppPreviewLight() {
+    AtromitosPlagiariouAppTheme(darkTheme = false){
+        AtromitosPlagiariouApp()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AtromitosPlagiariouAppPreviewDark() {
+    AtromitosPlagiariouAppTheme(darkTheme = true){
+        AtromitosPlagiariouApp()
+    }
 }
