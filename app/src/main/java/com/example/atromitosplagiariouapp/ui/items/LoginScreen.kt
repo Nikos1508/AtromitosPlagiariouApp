@@ -29,7 +29,7 @@ import com.example.atromitosplagiariouapp.ui.composables.InputField
 import com.example.atromitosplagiariouapp.ui.theme.AtromitosPlagiariouAppTheme
 
 @Composable
-fun SignUpScreen() {
+fun LoginScreen() {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -56,7 +56,7 @@ fun SignUpScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Εγγραφή",
+                text = "Σύνδεση",
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
@@ -97,7 +97,7 @@ fun SignUpScreen() {
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
-                Text("Δημιουργία λογαριασμού")
+                Text("Σύνδεση")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -108,7 +108,7 @@ fun SignUpScreen() {
                     contentColor = MaterialTheme.colorScheme.primary
                 )
             ) {
-                Text("Έχετε ήδη λογαριασμό? Συνδεθείτε")
+                Text("Δεν έχετε λογαριασμό? Εγγραφείτε")
             }
         }
     }
@@ -116,16 +116,16 @@ fun SignUpScreen() {
 
 @Preview(showBackground = true)
 @Composable
-fun AtromitosPlagiariouSignUpScreenPreviewLight() {
+fun AtromitosPlagiariouLoginScreenPreviewLight() {
     AtromitosPlagiariouAppTheme(darkTheme = false){
-        SignUpScreen()
+        LoginScreen()
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun AtromitosPlagiariouSignUpScreenPreviewDark() {
+fun AtromitosPlagiariouLoginpScreenPreviewDark() {
     AtromitosPlagiariouAppTheme(darkTheme = true){
-        SignUpScreen()
+        LoginScreen()
     }
 }
