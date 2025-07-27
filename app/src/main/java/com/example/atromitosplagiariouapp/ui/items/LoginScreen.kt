@@ -21,6 +21,7 @@ import com.example.atromitosplagiariouapp.data.model.UserState
 import com.example.atromitosplagiariouapp.ui.composables.InputField
 import com.example.atromitosplagiariouapp.ui.theme.AtromitosPlagiariouAppTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit = {},
@@ -28,22 +29,40 @@ fun LoginScreen(
     viewModel: SupabaseAuthViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val userState = viewModel.userState.value
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var emailFocused by remember { mutableStateOf(false) }
     var passwordFocused by remember { mutableStateOf(false) }
+    var loginAttemptMade by remember { mutableStateOf(false) }
 
-    val userState by viewModel.userState
+    val loginSuccessMsg = "You're logged in!"
+    val emptyFieldsMessage = "Please enter both email and password."
 
-    LaunchedEffect(userState) {
-        when (userState) {
-            is UserState.Success -> onLoginSuccess()
-            is UserState.Error -> {
-                val message = (userState as UserState.Error).message
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    val loginFailedWithMessage = when (userState) {
+        is UserState.Error -> "Login failed: ${userState.message}"
+        else -> ""
+    }
+
+    LaunchedEffect(userState, loginAttemptMade) {
+        if (loginAttemptMade) {
+            when (userState) {
+                is UserState.Success -> {
+                    if (userState.message == loginSuccessMsg) {
+                        Toast.makeText(context, loginSuccessMsg, Toast.LENGTH_SHORT).show()
+                        loginAttemptMade = false
+                        onLoginSuccess()
+                    }
+                }
+
+                is UserState.Error -> {
+                    Toast.makeText(context, loginFailedWithMessage, Toast.LENGTH_LONG).show()
+                    loginAttemptMade = false
+                }
+
+                UserState.Loading -> { }
             }
-            else -> {}
         }
     }
 
@@ -86,6 +105,7 @@ fun LoginScreen(
 
             InputField(
                 label = "Email",
+                placeholder = "Email",
                 value = email,
                 onValueChange = { email = it },
                 isFocused = emailFocused,
@@ -96,6 +116,7 @@ fun LoginScreen(
 
             InputField(
                 label = "Κωδικός",
+                placeholder = "Κωδικός",
                 value = password,
                 onValueChange = { password = it },
                 isFocused = passwordFocused,
@@ -107,18 +128,31 @@ fun LoginScreen(
 
             Button(
                 onClick = {
-                    viewModel.login(context, email.trim(), password.trim())
+                    if (email.isNotBlank() && password.isNotBlank()) {
+                        loginAttemptMade = true
+                        viewModel.login(context, email.trim(), password.trim())
+                    } else {
+                        Toast.makeText(context, emptyFieldsMessage, Toast.LENGTH_SHORT).show()
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
                 shape = RoundedCornerShape(20.dp),
+                enabled = userState != UserState.Loading || !loginAttemptMade,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
-                Text("Σύνδεση")
+                if (userState == UserState.Loading && loginAttemptMade) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text("Δημιουργία λογαριασμού")
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

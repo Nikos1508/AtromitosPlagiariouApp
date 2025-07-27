@@ -15,6 +15,7 @@ import io.github.jan.supabase.exceptions.RestException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import io.github.jan.supabase.auth.providers.builtin.Email
 
 class SupabaseAuthViewModel : ViewModel() {
 
@@ -83,7 +84,7 @@ class SupabaseAuthViewModel : ViewModel() {
         viewModelScope.launch {
             _userState.value = UserState.Loading
             try {
-                client.auth.signInWith(io.github.jan.supabase.auth.providers.builtin.Email) {
+                client.auth.signInWith(Email) {
                     email = userEmail
                     password = userPassword
                 }
@@ -99,6 +100,45 @@ class SupabaseAuthViewModel : ViewModel() {
                     else -> e.message ?: "Unknown login error."
                 }
                 _userState.value = UserState.Error(errorMessage)
+            }
+        }
+    }
+
+    fun signUp(context: Context, userEmail: String, userPassword: String, onNavigateToLogin: () -> Unit) {
+        viewModelScope.launch {
+            _userState.value = UserState.Loading
+            try {
+                val result = client.auth.signUpWith(Email) {
+                    email = userEmail
+                    password = userPassword
+                }
+
+                saveTokens(context)
+                loadCurrentUserEmail()
+                _userState.value = UserState.Success("Registered successfully!")
+                onNavigateToLogin()
+
+            } catch (e: Exception) {
+                val errorMessage = when (e) {
+                    is RestException -> e.error ?: "Registration failed. Server error."
+                    is HttpRequestException -> "Network error during registration. Please check connection."
+                    else -> e.message ?: "Unknown registration error."
+                }
+                _userState.value = UserState.Error(errorMessage)
+            }
+        }
+    }
+
+    fun logout(context: Context) {
+        viewModelScope.launch {
+            _userState.value = UserState.Loading
+            try {
+                client.auth.signOut()
+                clearTokens(context)
+                _currentUserEmail.value = null
+                _userState.value = UserState.Success("Logged out successfully!")
+            } catch (e: Exception) {
+                _userState.value = UserState.Error(e.message ?: "Logout failed.")
             }
         }
     }

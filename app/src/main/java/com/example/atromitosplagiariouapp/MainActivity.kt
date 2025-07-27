@@ -46,7 +46,13 @@ fun AtromitosPlagiariouApp() {
     ) {
         composable(AppScreen.Login.name) {
             LoginScreen(
-                onLoginSuccess = { navController.navigate(AppScreen.Home.name) },
+                onLoginSuccess = {
+                    navController.navigate(AppScreen.Home.name) {
+                        popUpTo(AppScreen.Login.name) {
+                            inclusive = true
+                        }
+                    }
+                },
                 onSignUpClick = { navController.navigate(AppScreen.SignUp.name) }
             )
         }

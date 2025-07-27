@@ -22,13 +22,14 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun InputField(
     label: String,
+    placeholder: String,
     value: String,
     onValueChange: (String) -> Unit,
     isFocused: Boolean,
     onFocusChanged: (Boolean) -> Unit,
     isPassword: Boolean = false
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column {
         Text(
             text = label,
             fontSize = if (isFocused || value.isNotEmpty()) 12.sp else 16.sp,
@@ -47,23 +48,27 @@ fun InputField(
                 fontSize = 16.sp
             ),
             singleLine = true,
-            visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
             decorationBox = { innerTextField ->
                 Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
+                    Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.CenterStart
                 ) {
+                    if (value.isEmpty() && (isFocused || value.isNotEmpty())) {
+                        Text(
+                            placeholder,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 16.sp
+                        )
+                    }
                     innerTextField()
                 }
             }
         )
-
         HorizontalDivider(
             thickness = if (isFocused) 2.dp else 1.dp,
-            color = if (isFocused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+            color = if (isFocused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
         )
     }
 }
