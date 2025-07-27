@@ -23,13 +23,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.atromitosplagiariouapp.R
 import com.example.atromitosplagiariouapp.ui.composables.InputField
 import com.example.atromitosplagiariouapp.ui.theme.AtromitosPlagiariouAppTheme
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
 
 @Composable
-fun SignUpScreen() {
+fun SignUpScreen(
+    onNavigateToLogin: () -> Unit,
+    onSignUpSuccess: () -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -51,10 +58,22 @@ fun SignUpScreen() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(32.dp),
+                .padding(bottom = 32.dp, end = 32.dp, start = 32.dp, top = 0.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            Image(
+                painter = painterResource(id = R.drawable.atromitos_plagiariou),
+                contentDescription = "App Logo",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             Text(
                 text = "Εγγραφή",
                 style = MaterialTheme.typography.headlineMedium,
@@ -87,7 +106,7 @@ fun SignUpScreen() {
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = { /* TO DO */ },
+                onClick = { onSignUpSuccess() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
@@ -103,7 +122,7 @@ fun SignUpScreen() {
             Spacer(modifier = Modifier.height(16.dp))
 
             TextButton(
-                onClick = { /* TO DO */ },
+                onClick = { onNavigateToLogin() },
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.primary
                 )
@@ -117,15 +136,21 @@ fun SignUpScreen() {
 @Preview(showBackground = true)
 @Composable
 fun AtromitosPlagiariouSignUpScreenPreviewLight() {
-    AtromitosPlagiariouAppTheme(darkTheme = false){
-        SignUpScreen()
+    AtromitosPlagiariouAppTheme(darkTheme = false) {
+        SignUpScreen(
+            onNavigateToLogin = {},
+            onSignUpSuccess = {}
+        )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun AtromitosPlagiariouSignUpScreenPreviewDark() {
-    AtromitosPlagiariouAppTheme(darkTheme = true){
-        SignUpScreen()
+    AtromitosPlagiariouAppTheme(darkTheme = true) {
+        SignUpScreen(
+            onNavigateToLogin = {},
+            onSignUpSuccess = {}
+        )
     }
 }
