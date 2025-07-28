@@ -32,7 +32,7 @@ import com.example.atromitosplagiariouapp.ui.theme.AtromitosPlagiariouAppTheme
 fun ProgramsScreen(
     programsByGroup: Map<String, List<Programs>> = emptyMap()
 ) {
-    val allDays = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+    val allDays = listOf("Δευτέρα", "Τρίτη", "Τετάρτη", "Πέμπτη", "Παρασκευή", "Σάββατο", "Κυριακή")
 
     Column(
         modifier = Modifier
@@ -106,11 +106,14 @@ fun ProgramsScreen(
 
                                 allDays.forEach { day ->
                                     val programForDay = programs.find { it.day.equals(day, ignoreCase = true) }
+
                                     val timeText = if (programForDay != null) {
                                         "${programForDay.timestart} - ${programForDay.timeend}"
                                     } else {
-                                        "- -"
+                                        "-"
                                     }
+
+                                    Log.d("ProgramsScreen", "Day: $day, Time: $timeText")
 
                                     Row(
                                         modifier = Modifier
@@ -162,8 +165,15 @@ fun ProgramsRoute() {
     var groupedPrograms by remember { mutableStateOf<Map<String, List<Programs>>>(emptyMap()) }
 
     LaunchedEffect(Unit) {
-        val fetched = ProgramRepository.fetchProgramsFromSupabase()
+        val fetched = ProgramRepository.fetchProgramsFromSupabase().map {
+            it.copy(day = it.day.trim().replaceFirstChar { c -> c.uppercaseChar() }.lowercase().replaceFirstChar { c -> c.uppercaseChar() })
+        }
+
         Log.d("ProgramsRoute", "Fetched ${fetched.size} programs")
+
+        fetched.forEach {
+            Log.d("SupabaseData", "Raw Day: '${it.day}', Group: '${it.group}', Time: ${it.timestart} - ${it.timeend}")
+        }
 
         groupedPrograms = fetched
             .groupBy { it.group }
