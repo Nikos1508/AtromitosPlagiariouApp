@@ -14,8 +14,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.atromitosplagiariouapp.data.model.Programs
 import com.example.atromitosplagiariouapp.ui.items.HomeScreen
 import com.example.atromitosplagiariouapp.ui.items.LoginScreen
+import com.example.atromitosplagiariouapp.ui.items.ProgramsRoute
+import com.example.atromitosplagiariouapp.ui.items.ProgramsScreen
 import com.example.atromitosplagiariouapp.ui.items.SignUpScreen
 import com.example.atromitosplagiariouapp.ui.theme.AtromitosPlagiariouAppTheme
 
@@ -33,7 +36,8 @@ class MainActivity : ComponentActivity() {
 enum class AppScreen {
     Login,
     SignUp,
-    Home
+    Home,
+    Programs
 }
 
 @Composable
@@ -63,10 +67,16 @@ fun AtromitosPlagiariouApp() {
             )
         }
         composable(AppScreen.Home.name) {
-            HomeScreen()
+            HomeScreen(
+                onNavigateToPrograms = { navController.navigate(AppScreen.Programs.name) }
+            )
+        }
+        composable(AppScreen.Programs.name) {
+            ProgramsRoute()
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun AtromitosPlagiariouAppPreviewLight() {

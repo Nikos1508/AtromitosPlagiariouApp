@@ -10,11 +10,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
@@ -22,24 +21,26 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.atromitosplagiariouapp.data.model.Programs
+import com.example.atromitosplagiariouapp.data.repositories.ProgramRepository
+import com.example.atromitosplagiariouapp.ui.theme.AtromitosPlagiariouAppTheme
 
 @Composable
 fun ProgramsScreen(
-    programs: Map<String, Map<String, String>> = emptyMap()
+    programEntries: List<Programs> = emptyList()
 ) {
     val focusManager = LocalFocusManager.current
+    var programsState by remember { mutableStateOf(programEntries) }
 
-    val programsState = remember { mutableStateOf(programs) }
+    val daysOfWeek = listOf("Δευτέρα", "Τρίτη", "Τετάρτη", "Πέμπτη", "Παρασκευή", "Σάββατο", "Κυριακή")
 
-    val daysOfWeek = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
-
-    fun updateProgramTime(category: String, day: String, newTime: String) {
-        val current = programsState.value.toMutableMap()
-        val catSchedule = current[category]?.toMutableMap() ?: mutableMapOf()
-        catSchedule[day] = newTime
-        current[category] = catSchedule
-        programsState.value = current
+    fun updateProgramTime(id: Long, newStart: String, newEnd: String) {
+        programsState = programsState.map {
+            if (it.id == id) it.copy(timeStart = newStart, timeEnd = newEnd) else it
+        }
     }
+
+    val groupedPrograms = programsState.groupBy { it.group }
 
     LazyColumn(
         modifier = Modifier
@@ -55,143 +56,144 @@ fun ProgramsScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        items(programsState.value.entries.toList()) { entry ->
-            val category = entry.key
-            val schedule = entry.value
+        items(groupedPrograms.entries.toList()) { (groupName, entries) ->
+            val displayGroup = if (groupName == "K12") "K12 | 10–12 ετών" else groupName
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outline,
-                        shape = RoundedCornerShape(12.dp)
+                        width = 2.dp,
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(16.dp)
                     )
-                    .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
-                    .padding(12.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.surface,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .padding(16.dp)
             ) {
                 Text(
-                    text = category,
+                    text = displayGroup,
                     style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Day",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        "Day",
                         modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Start
+                        textAlign = TextAlign.Start,
+                        color = MaterialTheme.colorScheme.secondary
                     )
                     Text(
-                        text = "Time",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        "Time",
                         modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.End
+                        textAlign = TextAlign.End,
+                        color = MaterialTheme.colorScheme.secondary
                     )
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
-
                 daysOfWeek.forEachIndexed { index, day ->
+                    val entry = entries.find { it.day == day }
 
                     var isEditing by remember { mutableStateOf(false) }
+                    var startTime by remember { mutableStateOf(entry?.timeStart ?: "") }
+                    var endTime by remember { mutableStateOf(entry?.timeEnd ?: "") }
 
-                    var time by remember { mutableStateOf(schedule[day]?.takeIf { it.isNotBlank() } ?: "-") }
-
-                    val rowBackgroundColor = if (index % 2 == 0)
-                        MaterialTheme.colorScheme.surface
+                    val rowColor = if (index % 2 == 0)
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
                     else
-                        MaterialTheme.colorScheme.surfaceVariant
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
 
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(rowBackgroundColor)
+                            .background(rowColor, shape = RoundedCornerShape(12.dp))
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
                     ) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
                                 text = day,
-                                style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.weight(1f),
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodyLarge
                             )
-
-                            Spacer(modifier = Modifier.width(16.dp))
 
                             Box(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .clickable(enabled = !isEditing) {
+                                    .clickable(enabled = entry != null && !isEditing) {
                                         isEditing = true
                                     }
                                     .background(
-                                        if (isEditing) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                                        if (isEditing) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                                         else Color.Transparent,
-                                        RoundedCornerShape(8.dp)
+                                        RoundedCornerShape(12.dp)
                                     )
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    .padding(horizontal = 8.dp, vertical = 2.dp)
                             ) {
-                                if (isEditing) {
-                                    TextField(
-                                        value = time.takeIf { it != "-" } ?: "",
-                                        onValueChange = { newValue -> time = newValue },
-                                        singleLine = true,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .onFocusChanged { focusState ->
-                                                if (!focusState.isFocused) {
-                                                    isEditing = false
-                                                    updateProgramTime(
-                                                        category,
-                                                        day,
-                                                        time.takeIf { it.isNotBlank() && it != "-" } ?: "-"
-                                                    )
-                                                }
-                                            },
-                                        keyboardOptions = KeyboardOptions.Default.copy(
-                                            imeAction = ImeAction.Done
-                                        ),
-                                        keyboardActions = KeyboardActions(
-                                            onDone = {
-                                                isEditing = false
-                                                focusManager.clearFocus()
-                                                updateProgramTime(
-                                                    category,
-                                                    day,
-                                                    time.takeIf { it.isNotBlank() && it != "-" } ?: "-"
-                                                )
-                                            }
-                                        )
+                                if (entry == null) {
+                                    Text(
+                                        "-",
+                                        textAlign = TextAlign.End,
+                                        color = MaterialTheme.colorScheme.outline
                                     )
+                                } else if (isEditing) {
+                                    Column {
+                                        TextField(
+                                            value = startTime,
+                                            onValueChange = { startTime = it },
+                                            label = { Text("Start") },
+                                            singleLine = true,
+                                            colors = TextFieldDefaults.colors(
+                                                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                            ),
+                                            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next)
+                                        )
+
+                                        Spacer(modifier = Modifier.height(4.dp))
+
+                                        TextField(
+                                            value = endTime,
+                                            onValueChange = { endTime = it },
+                                            label = { Text("End") },
+                                            singleLine = true,
+                                            colors = TextFieldDefaults.colors(
+                                                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                            ),
+                                            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                                            keyboardActions = KeyboardActions(
+                                                onDone = {
+                                                    isEditing = false
+                                                    focusManager.clearFocus()
+                                                    updateProgramTime(entry.id, startTime, endTime)  // <-- id is Long
+                                                }
+                                            )
+                                        )
+                                    }
                                 } else {
                                     Text(
-                                        text = time,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        text = "${entry.timeStart} - ${entry.timeEnd}",
+                                        textAlign = TextAlign.End,
                                         modifier = Modifier.fillMaxWidth(),
-                                        textAlign = TextAlign.End
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
-                        }
-
-                        if (index < daysOfWeek.size - 1) {
-                            HorizontalDivider(
-                                thickness = 2.dp,
-                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-                            )
                         }
                     }
                 }
@@ -200,62 +202,49 @@ fun ProgramsScreen(
     }
 }
 
+@Composable
+fun ProgramsRoute() {
+    var programs by remember { mutableStateOf<List<Programs>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        val fetched = ProgramRepository.fetchProgramsFromSupabase()
+        println("Fetched programs: $fetched") // Debug print
+        programs = fetched
+    }
+
+    ProgramsScreen(programEntries = programs)
+}
+
+
+
 @Preview(showBackground = true)
 @Composable
 fun ProgramsScreenPreviewLight() {
-    MaterialTheme(
-        colorScheme = lightColorScheme()
-    ) {
-        val samplePrograms = mapOf(
-            "K12" to mapOf(
-                "Monday" to "17:00 - 18:30",
-                "Tuesday" to "-",
-                "Wednesday" to "16:30 - 18:00",
-                "Thursday" to "-",
-                "Friday" to "17:00 - 18:30",
-                "Saturday" to "-",
-                "Sunday" to "-"
-            ),
-            "K14" to mapOf(
-                "Monday" to "18:00 - 19:30",
-                "Tuesday" to "18:00 - 19:30",
-                "Wednesday" to "-",
-                "Thursday" to "18:00 - 19:30",
-                "Friday" to "-",
-                "Saturday" to "-",
-                "Sunday" to "-"
-            )
-        )
-        ProgramsScreen(programs = samplePrograms)
+    val samplePrograms = listOf(
+        Programs(1L, "K12", "Δευτέρα", "10:00", "12:00"),
+        Programs(2L, "K12", "Τρίτη", "10:00", "12:00"),
+        Programs(3L, "K12", "Τετάρτη", "10:00", "12:00"),
+        Programs(4L, "Adult", "Δευτέρα", "18:00", "20:00"),
+        Programs(5L, "Adult", "Τετάρτη", "18:00", "20:00"),
+        Programs(6L, "Adult", "Παρασκευή", "18:00", "20:00"),
+    )
+    AtromitosPlagiariouAppTheme(darkTheme = false) {
+        ProgramsScreen(programEntries = samplePrograms)
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun ProgramsScreenPreviewDark() {
-    MaterialTheme(
-        colorScheme = darkColorScheme()
-    ) {
-        val samplePrograms = mapOf(
-            "K12" to mapOf(
-                "Monday" to "17:00 - 18:30",
-                "Tuesday" to "-",
-                "Wednesday" to "16:30 - 18:00",
-                "Thursday" to "-",
-                "Friday" to "17:00 - 18:30",
-                "Saturday" to "-",
-                "Sunday" to "-"
-            ),
-            "K14" to mapOf(
-                "Monday" to "18:00 - 19:30",
-                "Tuesday" to "18:00 - 19:30",
-                "Wednesday" to "-",
-                "Thursday" to "18:00 - 19:30",
-                "Friday" to "-",
-                "Saturday" to "-",
-                "Sunday" to "-"
-            )
-        )
-        ProgramsScreen(programs = samplePrograms)
+    val samplePrograms = listOf(
+        Programs(1L, "K12", "Δευτέρα", "10:00", "12:00"),
+        Programs(2L, "K12", "Τρίτη", "10:00", "12:00"),
+        Programs(3L, "K12", "Τετάρτη", "10:00", "12:00"),
+        Programs(4L, "Adult", "Δευτέρα", "18:00", "20:00"),
+        Programs(5L, "Adult", "Τετάρτη", "18:00", "20:00"),
+        Programs(6L, "Adult", "Παρασκευή", "18:00", "20:00"),
+    )
+    AtromitosPlagiariouAppTheme(darkTheme = true) {
+        ProgramsScreen(programEntries = samplePrograms)
     }
 }
