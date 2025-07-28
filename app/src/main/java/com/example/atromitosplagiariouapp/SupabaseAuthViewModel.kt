@@ -10,12 +10,12 @@ import com.example.atromitosplagiariouapp.data.model.UserState
 import com.example.atromitosplagiariouapp.data.network.SupabaseClient.client
 import com.example.atromitosplagiariouapp.utils.SharedPreferenceHelper
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.exceptions.HttpRequestException
 import io.github.jan.supabase.exceptions.RestException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import io.github.jan.supabase.auth.providers.builtin.Email
 
 class SupabaseAuthViewModel : ViewModel() {
 
@@ -24,7 +24,6 @@ class SupabaseAuthViewModel : ViewModel() {
 
     private val _currentUserEmail = mutableStateOf<String?>(null)
     val currentUserEmail: State<String?> = _currentUserEmail
-
 
     private suspend fun saveTokens(context: Context) = withContext(Dispatchers.IO) {
         val session = client.auth.currentSessionOrNull()

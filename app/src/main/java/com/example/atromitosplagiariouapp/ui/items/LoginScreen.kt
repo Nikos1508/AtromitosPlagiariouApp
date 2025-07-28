@@ -37,7 +37,7 @@ fun LoginScreen(
     var passwordFocused by remember { mutableStateOf(false) }
     var loginAttemptMade by remember { mutableStateOf(false) }
 
-    val loginSuccessMsg = "You're logged in!"
+    val loginSuccessMsg = "Logged in successfully!"
     val emptyFieldsMessage = "Please enter both email and password."
 
     val loginFailedWithMessage = when (userState) {
@@ -151,7 +151,7 @@ fun LoginScreen(
                         modifier = Modifier.size(24.dp)
                     )
                 } else {
-                    Text("Δημιουργία λογαριασμού")
+                    Text("Σύνδεση")
                 }
             }
 
