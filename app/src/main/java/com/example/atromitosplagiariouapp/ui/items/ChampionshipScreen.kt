@@ -52,7 +52,9 @@ fun ChampionshipScreen() {
     var showDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(true) {
-        championshipData = ChampionshipRepository.fetchChampionshipFromSupabase()
+        championshipData = ChampionshipRepository
+            .fetchChampionshipFromSupabase()
+            .sortedByDescending { it.points }
         isLoading = false
     }
 
@@ -85,7 +87,9 @@ fun ChampionshipScreen() {
                     team.id?.let { id ->
                         coroutineScope.launch {
                             ChampionshipRepository.deleteTeam(id)
-                            championshipData = ChampionshipRepository.fetchChampionshipFromSupabase()
+                            championshipData = ChampionshipRepository
+                                .fetchChampionshipFromSupabase()
+                                .sortedByDescending { it.points }
                         }
                     }
                 }
@@ -109,13 +113,20 @@ fun ChampionshipScreen() {
             onDismiss = { showDialog = false },
             onSave = { updatedTeam ->
                 coroutineScope.launch {
-                    if (updatedTeam.id == 0) {
-                        ChampionshipRepository.addTeam(updatedTeam)
+                    val updatedWithPoints = updatedTeam.copy(
+                        points = 3 * updatedTeam.wins + updatedTeam.draws
+                    )
+
+                    if (updatedWithPoints.id == 0) {
+                        ChampionshipRepository.addTeam(updatedWithPoints)
                     } else {
-                        ChampionshipRepository.updateTeam(updatedTeam)
+                        ChampionshipRepository.updateTeam(updatedWithPoints)
                     }
 
-                    championshipData = ChampionshipRepository.fetchChampionshipFromSupabase()
+                    championshipData = ChampionshipRepository
+                        .fetchChampionshipFromSupabase()
+                        .sortedByDescending { it.points }
+
                     showDialog = false
                 }
             }
@@ -212,7 +223,6 @@ fun HorizontalScrollTable(
 @Composable
 fun EditTeamDialog(team: Championship, onDismiss: () -> Unit, onSave: (Championship) -> Unit) {
     var name by remember { mutableStateOf(team.team) }
-    var points by remember { mutableStateOf(team.points.toString()) }
     var goals by remember { mutableStateOf(team.goals) }
     var wins by remember { mutableStateOf(team.wins.toString()) }
     var draws by remember { mutableStateOf(team.draws.toString()) }
@@ -224,7 +234,6 @@ fun EditTeamDialog(team: Championship, onDismiss: () -> Unit, onSave: (Champions
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Ομάδα") })
-                OutlinedTextField(value = points, onValueChange = { points = it }, label = { Text("Βαθμοί") }, keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number))
                 OutlinedTextField(value = goals, onValueChange = { goals = it }, label = { Text("Goal") })
                 OutlinedTextField(value = wins, onValueChange = { wins = it }, label = { Text("Νίκες") }, keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number))
                 OutlinedTextField(value = draws, onValueChange = { draws = it }, label = { Text("Ισοπαλίες") }, keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number))
@@ -236,11 +245,10 @@ fun EditTeamDialog(team: Championship, onDismiss: () -> Unit, onSave: (Champions
                 onSave(
                     team.copy(
                         team = name,
-                        points = points.toIntOrNull() ?: team.points,
                         goals = goals,
-                        wins = wins.toIntOrNull() ?: team.wins,
-                        draws = draws.toIntOrNull() ?: team.draws,
-                        loses = loses.toIntOrNull() ?: team.loses
+                        wins = wins.toIntOrNull() ?: 0,
+                        draws = draws.toIntOrNull() ?: 0,
+                        loses = loses.toIntOrNull() ?: 0
                     )
                 )
             }) {
