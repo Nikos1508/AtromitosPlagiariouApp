@@ -24,4 +24,45 @@ object ChampionshipRepository {
         }
     }
 
+    suspend fun addTeam(team: Championship) {
+        try {
+            client
+                .from("championship")
+                .insert(team)
+            Log.d("SupabaseAdd", "Team added: ${team.team}")
+        } catch (e: Exception) {
+            Log.e("SupabaseAdd", "Error: ${e.message}", e)
+        }
+    }
+
+    suspend fun updateTeam(team: Championship) {
+        try {
+            team.id?.let { id ->
+                client
+                    .from("championship")
+                    .update(team) {
+                        filter { eq("id", id) }
+                    }
+                Log.d("SupabaseUpdate", "Team updated: ${team.team}")
+            } ?: run {
+                Log.e("SupabaseUpdate", "Update failed: team ID is null")
+            }
+        } catch (e: Exception) {
+            Log.e("SupabaseUpdate", "Error: ${e.message}", e)
+        }
+    }
+
+    suspend fun deleteTeam(teamId: Int) {
+        try {
+            client
+                .from("championship")
+                .delete {
+                    filter { eq("id", teamId) }
+                }
+            Log.d("SupabaseDelete", "Team deleted: $teamId")
+        } catch (e: Exception) {
+            Log.e("SupabaseDelete", "Error: ${e.message}", e)
+        }
+    }
+
 }
