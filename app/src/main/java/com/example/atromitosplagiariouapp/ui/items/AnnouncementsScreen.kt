@@ -83,7 +83,7 @@ fun AnnouncementsScreen() {
                             }) {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete Announcement"
+                                    contentDescription = "Διαγραφή ανακοίνωσης"
                                 )
                             }
                         }
@@ -98,18 +98,18 @@ fun AnnouncementsScreen() {
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text(if (isEditing) "Edit Announcement" else "New Announcement") },
+            title = { Text(if (isEditing) "Επεξεργασία ανακοίνωσης" else "Νέα ανακοίνωση") },
             text = {
                 Column {
                     OutlinedTextField(
                         value = title,
                         onValueChange = { title = it },
-                        label = { Text("Title") }
+                        label = { Text("Τίτλος ανακοίνωσης") }
                     )
                     OutlinedTextField(
                         value = text,
                         onValueChange = { text = it },
-                        label = { Text("Text") }
+                        label = { Text("Κυρίως ανακοίνωση") }
                     )
                 }
             },
@@ -132,7 +132,7 @@ fun AnnouncementsScreen() {
                         editingAnnouncement = null
                     }
                 }) {
-                    Text(if (isEditing) "Save" else "Add")
+                    Text(if (isEditing) "Αποθήκευση" else "Προσθήκη")
                 }
             },
             dismissButton = {
@@ -141,7 +141,7 @@ fun AnnouncementsScreen() {
                     isEditing = false
                     editingAnnouncement = null
                 }) {
-                    Text("Cancel")
+                    Text("Ακύρωση")
                 }
             }
         )

@@ -30,7 +30,7 @@ fun AppTopBar(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.atromitos_plagiariou),
-                    contentDescription = "Logo",
+                    contentDescription = "Σήμα",
                     modifier = Modifier.size(40.dp)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
@@ -50,7 +50,7 @@ fun AppTopBar(
                 IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
+                        contentDescription = "Πίσω"
                     )
                 }
             }

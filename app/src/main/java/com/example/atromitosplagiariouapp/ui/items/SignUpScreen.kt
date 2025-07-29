@@ -57,11 +57,11 @@ fun SignUpScreen(
     var passwordFocused by remember { mutableStateOf(false) }
     var signUpAttemptMade by remember { mutableStateOf(false) }
 
-    val successMsg = "Account created successfully!"
-    val emptyFieldsMessage = "Please enter both email and password."
+    val successMsg = "Δημιουργία λογαριασμού έγινε με επιτυχεία"
+    val emptyFieldsMessage = "Παρακαλώ εισάγεται email και κωδικό"
 
     val signUpFailedWithMessage = when (userState) {
-        is UserState.Error -> "Sign up failed: ${userState.message}"
+        is UserState.Error -> "Αποτυχεία εγγραφής: ${userState.message}"
         else -> ""
     }
 
@@ -81,7 +81,7 @@ fun SignUpScreen(
                     signUpAttemptMade = false
                 }
 
-                UserState.Loading -> { /* Optionally show loading */ }
+                UserState.Loading -> { }
             }
         }
     }

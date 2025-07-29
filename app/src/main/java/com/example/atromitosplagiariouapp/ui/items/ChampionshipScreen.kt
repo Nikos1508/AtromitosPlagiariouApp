@@ -207,7 +207,7 @@ fun HorizontalScrollTable(
                             )
                         }
                         IconButton(onClick = { onDeleteTeam(team) }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete")
+                            Icon(Icons.Default.Delete, contentDescription = "Διαγραφή")
                         }
                     }
                 }
