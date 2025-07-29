@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Programs(
-    val id: Int,
+    val id: Int? = null,
     val group: String,
     val day: String,
     val timestart: String,
