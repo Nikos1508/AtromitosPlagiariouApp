@@ -29,6 +29,10 @@ Each section allows you to **add**, **edit**, and **delete** items on the websit
 
 ---
 
+To run the app, you simply download the .apk file (https://github.com/Nikos1508/AtromitosPlagiariouApp/blob/main/app/release/app-release.apk)
+
+---
+
 ## 📅 Programs
 
 - Tap the ➕ **Add** button to create a new program
